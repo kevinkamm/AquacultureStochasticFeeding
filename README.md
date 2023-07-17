@@ -4,7 +4,7 @@ This repository is complementing [TODO](https://www.arxiv.org/) for investigatin
 ## Installation
 There is no installation required, please download the code and run the main files. For Python you need all the necessary dependencies to run Tensorflow 2.x. There is also a Jupyter notebook available for testing the Python code in Colab.
 
-[![Open In Colab TODO](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinkamm/AquacultureStochasticFeeding/main/Python/colab.ipynb)
+[![Open In Colab TODO](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinkamm/AquacultureStochasticFeeding/blob/main/Python/colab.ipynb)
 
 ## Code and Usage
 The code is structured as follows: 

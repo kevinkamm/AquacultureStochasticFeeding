@@ -54,4 +54,4 @@ The data provided in this repository may not be used for anything else, than tes
 
 The most recent data concerning salmon futures can be downloaded from [fishpool.eu](https://fishpool.eu/forward-price-history/) while agreeing to their terms of usage.
 
-Historical soybean futures are not available publicly to the best of our knowledge and we only provide a preprocessed sample based on market data to test the code. Results may differ from the values in presented in the paper.
+Historical soybean futures are not available publicly to the best of our knowledge and we only provide a preprocessed sample based on market data to test the code. Results may differ from the values presented in the paper.

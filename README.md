@@ -50,7 +50,7 @@ Optimal Stopping:
     1. Deep Classifier [DeepDecision](Python/DeepDecision.py)
 
 # Data
-The data provided in this repository may not be used for anything else, than testing the algorithms in this repository. 
+The data provided in this repository may not be used for anything else, than testing the algorithms in this repository. The license for the code does not extend to the datasets.
 
 The most recent data concerning salmon futures can be downloaded from [fishpool.eu](https://fishpool.eu/forward-price-history/) while agreeing to their terms of usage.
 

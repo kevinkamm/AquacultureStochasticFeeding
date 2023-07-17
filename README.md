@@ -1,5 +1,5 @@
 # AquacultureStochasticFeeding
-This repository is complementing [TODO](https://www.arxiv.org/) for investigating the effect of optimal harvesting rules considering stochastic feeding costs in aquaculture farms.
+This repository is complementing [TODO](https://www.arxiv.org/) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms.
 
 # Installation
 There is no installation required, please download the code and run the main files. There is also a Jupyter notebook available for testing the Python code in colab.
@@ -32,3 +32,7 @@ Structure:
 - Decision Boundary
     1. Deep Classifier [TODO](https://www.arxiv.org/) 
 
+# Data
+The most recent data concerning salmon futures can be downloaded from [fishpool.eu](https://fishpool.eu/forward-price-history/). 
+
+Historical soybean futures are not available publicly to the best of our knowledge and we only provide a preprocessed sample to test the code.  

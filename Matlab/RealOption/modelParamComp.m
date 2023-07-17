@@ -81,7 +81,7 @@ plot(t,relP2,'g-');
 plot(t,relP3,'b-');
 legend('down,down','down,up','up,up','Orientation','horizontal','Location','southoutside')
 title('Salmon Relative Mean Price')
-exportgraphics(fig,'salmonRelMean.pdf')
+exportgraphics(fig,'Figures/salmonRelMean.pdf')
 clear W1 W2 salmonP;
 %% Soy
 % Brownian motions, directly under Q
@@ -105,5 +105,5 @@ plot(t,relP2,'g-');
 plot(t,relP3,'b-');
 legend('low vol','medium vol','high vol','Orientation','horizontal','Location','southoutside')
 title('Soy Relative Mean Price')
-exportgraphics(fig,'soyRelMean.pdf')
+exportgraphics(fig,'Figures/soyRelMean.pdf')
 clear W1 W2 soyP;

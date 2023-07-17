@@ -52,4 +52,4 @@ Optimal Stopping:
 # Data
 The most recent data concerning salmon futures can be downloaded from [fishpool.eu](https://fishpool.eu/forward-price-history/). 
 
-Historical soybean futures are not available publicly to the best of our knowledge and we only provide a preprocessed sample to test the code.  
+Historical soybean futures are not available publicly to the best of our knowledge and we only provide a preprocessed sample to test the code. This data may not be used for anything else, than testing the algorithms in this repository.  

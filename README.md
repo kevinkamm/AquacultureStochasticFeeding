@@ -12,7 +12,7 @@ The code is structured as follows:
 For the data preprocessing and calibration of the commodity models to the market data we used Matlab with its (Global) Optimization Toolbox. 
 
 We provide the code for estimating the optimal harvesting times with a Least-Square Monte-Carlo (LSMC) regression in both languages [Matlab](Matlab/) and [Python](Python/). 
-Everything concerning Deep Learning is only implemented in Python.
+Everything concerning Deep Learning is only implemented in Python using Tensorflow 2.10.
 
 ### Python
 Optimal Stopping:

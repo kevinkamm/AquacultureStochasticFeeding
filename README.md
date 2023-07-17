@@ -1,12 +1,12 @@
-# AquacultureStochasticFeeding
-This repository is complementing [TODO](https://www.arxiv.org/) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms.
+# Aquaculture with Stochastic Feeding Costs
+This repository is complementing [TODO](https://www.arxiv.org/) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms. In particular, we chose salmon farms for our investigation.
 
 # Installation
 There is no installation required, please download the code and run the main files. For Python you need all the necessary dependencies to run Tensorflow 2.x. There is also a Jupyter notebook available for testing the Python code in Colab.
 
 [![Open In Colab TODO](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/googlecolab/colabtools/blob/master/notebooks/colab-github-demo.ipynb)
 
-# Code
+# Code and Usage
 The code is structured as follows: 
 
 For the data preprocessing and calibration of the commodity models to the market data we used Matlab with its (Global) Optimization Toolbox. 
@@ -15,14 +15,12 @@ We provide the code for estimating the optimal harvesting times with a Least-Squ
 Everything concerning Deep Learning is only implemented in Python.
 
 ## Python
-Structure:
-
-## Matlab
-Structure:
-
-# Usage
-To run the examples from the paper, please use run the following files:
-## Python
+Optimal Stopping:
+1. Run [main](Python/main.m) with your custom model parameters to find the optimal harvesting time. Also returns a comparison of stopping rules with deterministic and stochastic feeding costs using a Deep Neural Network and a pathwise comparison.
+2. Deep Optimal Stopping (Optional):
+    1. Run [DeepOS_IndepFeeding](Python/DeepOS_IndepFeeding.py) to use solve the optimal stopping problem in the case of stochastic feeding costs.
+    2. Run [DeepOS_ConstFeeding](Python/DeepOS_ConstFeeding.py) to use solve the optimal stopping problem in the case of constant feeding costs (different to deterministic feeding costs) to compare to 
+    [Ewald et al. (2016)](https://doi.org/10.1093/ajae/aaw052).
 
 ## Matlab
 Data Preprocessing:
@@ -39,8 +37,7 @@ Calibration:
     2. Run [mainSoy](Matlab/Kalman/mainSalmon.m) to calibrate the soy model.
 
 Optimal Stopping:
-1. Run [mainLSMC](Matlab/RealOption/mainLSMC.m) with your custom model parameters to find the optimal harvesting time. Also returns a pathwise comparison of stopping rule with deterministic and stochastic
-feeding costs.
+1. Run [mainLSMC](Matlab/RealOption/mainLSMC.m) with your custom model parameters to find the optimal harvesting time. Also returns a pathwise comparison of stopping rules with deterministic and stochastic feeding costs.
 
 # Algorithms
 - Commodity Calibration

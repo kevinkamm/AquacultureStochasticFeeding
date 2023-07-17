@@ -20,7 +20,11 @@ Structure:
 ## Matlab
 Structure:
 
-## Customization
+# Usage
+To run the examples from the paper, please use run the following files:
+## Python
+
+## Matlab
 
 # Algorithms
 - Commodity Calibration

@@ -327,7 +327,7 @@ if __name__ == "__main__":
 
     # Simulation parameters
     N = 3*24  # internal simulation is 10*N time steps
-    batch_size = int(8192/4)  # 2^i for max performance on CUDA device
+    batch_size = int(8192/2)  # 2^i for max performance on CUDA device
     d = 2  # legacy parameter
 
     # Parameters for fish farming, see Table 4 Ewald2017
@@ -348,9 +348,24 @@ if __name__ == "__main__":
     # Model parameters for Panel B, see Table 2 Ewald2017
     r = 0.0303  # see page 5 Norwegian average interest rate
 
-    # salmonParam=[0.121539, 0.319185, 1.29164, 3.98723, 0.0351972, 0.000327077, 0.915016, 0, 27.81]
-    # salmonParam=[0.174557, 0.303309, 0.185905, 5.50823e-06, 0.0349834, 0.0648319, 0.897994, 0, 27.81]
-    salmonParam=[0.818, 0.219, 0.163, 0.495, 1.286, 0.630, 0.921, 0.0303, 27.81]
+    'Salmon'
+    # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
+    # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95] # down,down
+    salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up
+    # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95] # up,up
+
+
+    "Fish feeding 25% of production cost, disease 30%, harvest 10%. Total production cost = 50% of price = labor, smolt, ..."
+    salmonPrice=salmonParam[-1] #NOK/KG
+    harvestingCosts=salmonPrice*0.5*0.1 # roughly 10%
+    feedingCosts=salmonPrice*0.5*0.25
+    initialSalmon=0.5*salmonPrice+feedingCosts+harvestingCosts #we add the costs to salmon price since they are respected in the model, other costs are fixed and thus removed
+    salmonParam[-1]=initialSalmon
+
+    print(f'Feeding costs {feedingCosts} and Harvesting costs {harvestingCosts}')
+    fc=feedingCosts
+    hc=harvestingCosts
+
     mu,sigma1,sigma2,kappa,alpha,l,rho,delta0,P0 = salmonParam
 
     lr_values = [0.05, 0.005, 0.0005]
@@ -363,17 +378,20 @@ if __name__ == "__main__":
 
     deepOS = DeepOS(batch_size,neurons,d,N,T,m,cr,n0,hc,fc,wInf,a,b,c,r,kappa,alpha,sigma1,sigma2,rho,l,delta0,P0)
     deepOS.train_model(train_steps,lr_boundaries,lr_values)
-    px_mean, tau_mean, exerciseRegion = deepOS.simulate_price(mc_runs,timeBoundary=1)
+    px_mean, tau_mean = deepOS.simulate_price(mc_runs,timeBoundary=-1)
+    print(f'Mean value {px_mean} at mean time {tau_mean}')
 
-    Nsim=N*10
-    t = np.linspace(0,T,Nsim,endpoint=True)
-    tCoarse = t[int(Nsim/N)-1::int(Nsim/N)]
-    tn = (tCoarse>=tau_mean).nonzero()[0][0]
+    # px_mean, tau_mean, exerciseRegion = deepOS.simulate_price(mc_runs,timeBoundary=1)
 
-    for i in range(-3,3):
-        if tn+i<N-1 and tn+i>=0:
-            plt.figure()
-            plt.scatter(exerciseRegion[0][tn+i],exerciseRegion[1][tn+i])
-            plt.title(f'at time t={tCoarse[tn+i]}, i={tn+i}')
-            plt.savefig(f'Figures/const {i}.png')
-            plt.close()
+    # Nsim=N*10
+    # t = np.linspace(0,T,Nsim,endpoint=True)
+    # tCoarse = t[int(Nsim/N)-1::int(Nsim/N)]
+    # tn = (tCoarse>=tau_mean).nonzero()[0][0]
+
+    # for i in range(-3,3):
+    #     if tn+i<N-1 and tn+i>=0:
+    #         plt.figure()
+    #         plt.scatter(exerciseRegion[0][tn+i],exerciseRegion[1][tn+i])
+    #         plt.title(f'at time t={tCoarse[tn+i]}, i={tn+i}')
+    #         plt.savefig(f'Figures/const {i}.png')
+    #         plt.close()

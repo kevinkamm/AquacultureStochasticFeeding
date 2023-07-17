@@ -351,13 +351,7 @@ class DeepOS:
 
 
 if __name__ == "__main__":
-    # tf.config.set_visible_devices([], 'GPU')
-    # print(tf.config.experimental.get_synchronous_execution())
-    # print(tf.config.experimental.list_physical_devices())
-    # print(tf.config.threading.get_inter_op_parallelism_threads())
-    # print(tf.config.threading.get_intra_op_parallelism_threads())
-    # from tensorflow.python.framework.ops import disable_eager_execution
-    # disable_eager_execution()
+    # tf.config.set_visible_devices([], 'GPU') #GPU version much faster
     import matplotlib.pyplot as plt
     import os
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
@@ -374,9 +368,6 @@ if __name__ == "__main__":
     m = .1
     cr = 1.1
     n0 = 10000
-    hc = 3
-    # fc = 7
-    fc = 10
     wInf = 6
 
     # Bertalanffyo's growth function, see Footnote 20 Ewald2017
@@ -387,18 +378,29 @@ if __name__ == "__main__":
     # Model parameters for Panel B, see Table 2 Ewald2017
     r = 0.0303  # see page 5 Norwegian average interest rate
 
+    'Salmon'
     # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
-    # salmonParam=[0.130222, 0.400621, 2.11884, 5.04668, 1.06888e-05, 0.351742, 0.955581, 0, 79.69]
-    # salmonParam=[0.174557, 0.303309, 0.185905, 5.50823e-06, 0.0349834, 0.0648319, 0.897994, 0, 27.81]
-    # salmonParam=[0.654, 0.153, 0.206, 1.012, 1.135, 1.142, 0.736, 0.0303, 27.81]
-    salmonParam=[0.818, 0.219, 0.163, 0.495, 1.286, 0.630, 0.921, 0.0303, 27.81]
+    # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95] # down,down
+    salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up
+    # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95] # up,up
 
+    'Soy'
     # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
-    # soyParam=[0.10087,0.35925,0.26988,0.00017308,0.023698,3.6846e-08,0.7874,0,61.95] # up, down, up (at 2.x years)
-    # soyParam=[0.099513,0.25681,0.19408,0.24332,0.080504,0.0070818,0.61712,0,61.95] # up, up, up
-    # soyParam=[0.1031,0.26449,0.34801,1.6036,0.049902,0.0070718,0.57387,0.0303,61.95] # up, down, down
-    # soyParam=[0.092610826, 0.16906861, 0.22733389, 0.31868512, 0.096697915, 2.2455395e-06, 0.4592331, 0, 1000.275]
-    soyParam=[0.1,2.0,1.0,1.5,0.05,0.01,0.6,0.0303,1]
+    # soyParam=[0.15, 0.5, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # low vol
+    soyParam=[0.15, 1, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # medium vol
+    # soyParam=[0.15, 2, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # high vol
+
+
+    "Fish feeding 25% of production cost, disease 30%, harvest 10%. Total production cost = 50% of price = labor, smolt, ..."
+    salmonPrice=salmonParam[-1] #NOK/KG
+    harvestingCosts=salmonPrice*0.5*0.1 # roughly 10%
+    feedingCosts=salmonPrice*0.5*0.25
+    initialSalmon=0.5*salmonPrice+feedingCosts+harvestingCosts #we add the costs to salmon price since they are respected in the model, other costs are fixed and thus removed
+    salmonParam[-1]=initialSalmon
+    soyParam[-1]=feedingCosts # to save the right dataset, since initial price is not relevant for soy model
+    print(f'Feeding costs {feedingCosts} and Harvesting costs {harvestingCosts}')
+    fc=feedingCosts
+    hc=harvestingCosts
 
     lr_values = [0.05, 0.005, 0.0005]
     mc_runs = 500 #mc_runs * batch_size simulations
@@ -411,18 +413,21 @@ if __name__ == "__main__":
     deepOS = DeepOS(batch_size,neurons,d,N,T,m,cr,n0,hc,fc,wInf,a,b,c,r,salmonParam,soyParam)
     deepOS.train_model(train_steps,lr_boundaries,lr_values)
 
-    px_mean, tau_mean, exerciseRegion = deepOS.simulate_price(mc_runs,timeBoundary=1)
-
-    Nsim=N*10
-    t = np.linspace(0,T,Nsim,endpoint=True)
-    tCoarse = t[int(Nsim/N)-1::int(Nsim/N)]
-    tn = (tCoarse>=tau_mean).nonzero()[0][0]
-
+    px_mean, tau_mean = deepOS.simulate_price(mc_runs,timeBoundary=-1)
     print(f'Mean value {px_mean} at mean time {tau_mean}')
-    for i in range(-3,3):
-        if tn+i<N-1 and tn+i>=0:
-            plt.figure()
-            plt.scatter(exerciseRegion[0][tn+i],exerciseRegion[1][tn+i])
-            plt.title(f'at time t={tCoarse[tn+i]}, i={tn+i}')
-            plt.savefig(f'Figures/stoch {i}.png')
-            plt.close()
+
+    # px_mean, tau_mean, exerciseRegion = deepOS.simulate_price(mc_runs,timeBoundary=1)
+
+    # Nsim=N*10
+    # t = np.linspace(0,T,Nsim,endpoint=True)
+    # tCoarse = t[int(Nsim/N)-1::int(Nsim/N)]
+    # tn = (tCoarse>=tau_mean).nonzero()[0][0]
+
+    # print(f'Mean value {px_mean} at mean time {tau_mean}')
+    # for i in range(-3,3):
+    #     if tn+i<N-1 and tn+i>=0:
+    #         plt.figure()
+    #         plt.scatter(exerciseRegion[0][tn+i],exerciseRegion[1][tn+i])
+    #         plt.title(f'at time t={tCoarse[tn+i]}, i={tn+i}')
+    #         plt.savefig(f'Figures/stoch {i}.png')
+    #         plt.close()

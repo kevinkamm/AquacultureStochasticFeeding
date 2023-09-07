@@ -1,10 +1,10 @@
 # Aquaculture with Stochastic Feeding Costs
-This repository is complementing [TODO](https://www.arxiv.org/) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms. In particular, we chose salmon farms for our investigation.
+This repository is complementing [our paper](https://arxiv.org/abs/2309.02970) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms. In particular, we chose salmon farms for our investigation.
 
 ## Installation
 There is no installation required, please download the code and run the main files. For Python you need all the necessary dependencies to run Tensorflow 2.x. There is also a Jupyter notebook available for testing the Python code in Colab.
 
-[![Open In Colab TODO](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinkamm/AquacultureStochasticFeeding/blob/main/Python/colab.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/kevinkamm/AquacultureStochasticFeeding/blob/main/Python/colab.ipynb)
 
 ## Code and Usage
 The code is structured as follows: 

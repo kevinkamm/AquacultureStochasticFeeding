@@ -1,4 +1,4 @@
-# Aquaculture with Stochastic Feeding Costs
+# On the Impact of Feeding Cost Risk in Aquaculture Valuation and Decision Making
 This repository is complementing [our paper](https://arxiv.org/abs/2309.02970) for investigating the effect of stochastic feeding costs to optimal harvesting rules in aquaculture farms. In particular, we chose salmon farms for our investigation.
 
 ## Installation

@@ -1,6 +1,13 @@
 from FishFarm import fishFarm
 import os
 import tensorflow as tf
+import numpy as np
+import pandas as pd
+# import matplotlib.pyplot as plt 
+# from scipy.stats import norm 
+import scipy.stats as st
+from joblib import Parallel, delayed
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 os.environ["TF_ENABLE_ONEDNN_OPTS"]="1"
 tf.config.set_visible_devices([], 'GPU')
@@ -8,7 +15,7 @@ tf.config.set_visible_devices([], 'GPU')
 'Salmon'
 # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
 # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95] # down,down
-salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up
+salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up   #95% CI: (1.0162025781991555, 1.0262032569475261)
 # salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95] # up,up
 
 'Soy'
@@ -16,6 +23,23 @@ salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up
 # soyParam=[0.15, 0.5, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # low vol
 soyParam=[0.15, 1, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # medium vol
 # soyParam=[0.15, 2, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500] # high vol
+
+'Correlation Matrix'
+rho = None
+
+# rho=np.ones((4,4),dtype=np.float32)*(0.2)
+# np.fill_diagonal(rho,1)
+# rho[0,1]=salmonParam[6]
+# rho[1,0]=salmonParam[6]
+# rho[2,3]=soyParam[6]
+# rho[3,2]=soyParam[6]
+
+# rho=np.ones((4,4),dtype=np.float32)*(-0.2)
+# np.fill_diagonal(rho,1)
+# rho[0,1]=salmonParam[6]
+# rho[1,0]=salmonParam[6]
+# rho[2,3]=soyParam[6]
+# rho[3,2]=soyParam[6]
 
 
 "Fish feeding 25% of production cost, disease 30%, harvest 10%. Total production cost = 50% of price = labor, smolt, ..."
@@ -27,5 +51,49 @@ salmonParam[-1]=initialSalmon
 print(f'Feeding costs {feedingCosts} and Harvesting costs {harvestingCosts}')
 soyParam[-1]=feedingCosts # to save the right dataset, since initial price is not relevant for soy model
 
-farm1=fishFarm(salmonParam,soyParam,fc=soyParam[-1],hc=harvestingCosts,trainBoundary=False)
-farm1.compareStoppingTimes(savedir='Python')
+farm1=fishFarm(salmonParam,soyParam,fc=soyParam[-1],hc=harvestingCosts,trainBoundary=False,rho=rho,verbose=0)
+
+V_ss=[]
+tau_s_m=[]
+V_sd=[]
+tau_d_m=[]
+ri=[]
+V_path=[]
+# for i in range(0,1000):
+#     V_stoch_stoch,tau_stoch,V_stoch_determ,tau_determ,RI,V_pathwise_comp = farm1.compareStoppingTimes(M=100000,savedir='Python',seed=2+i)
+#     V_ss.append(V_stoch_stoch)
+#     tau_s_m.append(tau_stoch)
+#     V_sd.append(V_stoch_determ)
+#     tau_d_m.append(tau_determ)
+#     ri.append(RI)
+#     V_path.append(V_pathwise_comp)
+
+res=Parallel(n_jobs=8)(delayed(farm1.compareStoppingTimes)(M=100000,savedir='Python',seed=2+i) for i in range(1000))
+V_ss,tau_s_m,V_sd,tau_d_m,ri,V_path=zip(*res)
+
+d={'Stoch-Stoch Value':V_ss,'Stoch-Stoch Mean Stopping Time':tau_s_m,'Stoch-Determ Value':V_sd,'Stoch-Determ Mean Stopping Time':tau_d_m,'Rel Improvement':ri}
+name='salmon_'+'_'.join(['{0:1.2f}'.format(x) for x in salmonParam])+'_soy_'+'_'.join(['{0:1.3f}'.format(x) for x in soyParam])+'_rho_'+'_'.join( ['{0:1.3f}'.format(rho[0,2]) if rho is not None else ''])
+saveDir='Python/Statistics/'+name
+
+df = pd.DataFrame(data=d)
+dfstat = df.describe()
+
+print('Save DataFrames')
+df.to_csv(saveDir+'.csv',sep=';',decimal='.')
+dfstat.to_csv(saveDir+'_stats'+'.csv',sep=';',decimal=',')
+
+data=np.array(ri)
+print(st.norm.interval(alpha=0.95, loc=np.mean(data), scale=st.sem(data)))
+
+# print('Plots') #Doesn't work because deterministic stopping rule can end up with negative farm value, because stopped too late
+
+# data = V_path[0]
+# mu, std = norm.fit(data)  
+# plt.hist(data, bins=25, density=True, alpha=0.6, color='b') 
+# xmin, xmax = plt.xlim() 
+# x = np.linspace(xmin, xmax, 100) 
+# p = norm.pdf(x, mu, std) 
+# plt.plot(x, p, 'k', linewidth=2) 
+# title = "Fit Values: {:.2f} and {:.2f}".format(mu, std) 
+# plt.title(title) 
+# plt.show() 

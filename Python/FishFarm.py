@@ -34,7 +34,8 @@ class fishFarm():
                  gamma:float=0.0, # utility
                  dtype:DTypeLike=np.float32,
                  verbose:Optional[int]=1,
-                 trainBoundary:Optional[bool]=False):
+                 trainBoundary:Optional[bool]=False,
+                 rho:Optional[np.ndarray]=None):
         self.salmonParam = salmonParam
         self.soyParam = soyParam
         self.T = T
@@ -55,6 +56,7 @@ class fishFarm():
         self.model = '_'.join([f'{x:1.2f}' for x in salmonParam])+'-'+'_'.join([f'{x:1.2f}' for x in soyParam])
         self.verbose=verbose
         self.trainBoundary=trainBoundary
+        self.rho=rho
 
     def generateFishFarm(self,seed:int,M:int):
         M=int(M)
@@ -63,12 +65,17 @@ class fishFarm():
         t=np.linspace(0,self.T,self.N*self.simFactor,endpoint=True,dtype=self.dtype).reshape(-1,1)
         dt=self.T/(self.N*self.simFactor-1)
 
-        W=brownianMotion(self.T,int(self.N*self.simFactor),M,d=2,rho=self.salmonParam[-3],dtype=self.dtype,rng=rng)
-        salmonP,salmonDelta = schwartz2factor(self.salmonParam[-2],self.salmonParam[-1],self.r,*self.salmonParam[1:-3],t,W,dtype=self.dtype)
+        if self.rho is not None:
+            W=brownianMotion(self.T,int(self.N*self.simFactor),M,d=4,rho=self.rho,dtype=self.dtype,rng=rng)
+            W1=W[:,:,0:2]
+            W2=W[:,:,2:4]
 
+        else:
+            W1=brownianMotion(self.T,int(self.N*self.simFactor),M,d=2,rho=self.salmonParam[-3],dtype=self.dtype,rng=rng)
+            W2=brownianMotion(self.T,int(self.N*self.simFactor),M,d=2,rho=self.soyParam[-3],dtype=self.dtype,rng=rng)
 
-        W=brownianMotion(self.T,int(self.N*self.simFactor),M,d=2,rho=self.soyParam[-3],dtype=self.dtype,rng=rng)
-        soyP,soyDelta = schwartz2factor(self.soyParam[-2],1.0,self.r,*self.soyParam[1:-3],t,W,dtype=self.dtype)
+        salmonP,salmonDelta = schwartz2factor(self.salmonParam[-2],self.salmonParam[-1],self.r,*self.salmonParam[1:-3],t,W1,dtype=self.dtype)
+        soyP,soyDelta = schwartz2factor(self.soyParam[-2],1.0,self.r,*self.soyParam[1:-3],t,W2,dtype=self.dtype)
         # soyP=soyP/self.soyParam[-1]
 
         "Joint dynamics with reduced time steps"
@@ -169,7 +176,7 @@ class fishFarm():
     def generateValidationSet(self,M:Optional[int]=int(1e5),seed:Optional[int]=2,savedir:Optional[str]=''):
         if self.verbose>0:
             print('Generate Validation Set')
-        t,tau_stoch,tau_determ,V_stoch,V_determ,obj_stoch,obj_determ,S =self.exerciseLSMC(0,M)
+        t,tau_stoch,tau_determ,V_stoch,V_determ,obj_stoch,obj_determ,S =self.exerciseLSMC(seed-2,M)
         LSMC_stoch_exercise_val,LSMC_stoch_cont_val = saveDecisions(t,tau_stoch,S,seed=seed,saveas='')
         LSMC_determ_exercise_val,LSMC_determ_cont_val = saveDecisions(t,tau_determ,S[:,:,:2],seed=seed,saveas='')
 
@@ -178,7 +185,7 @@ class fishFarm():
     def compareStoppingTimes(self,M:Optional[int]=1e5,seed:Optional[int]=2,savedir:Optional[str]=''):
         if self.trainBoundary:
             LSMC_stoch_cont_train,LSMC_stoch_exercise_train,LSMC_determ_cont_train,LSMC_determ_exercise_train = self.generateTrainingSet(savedir=savedir)
-        LSMC_stoch_cont_val,LSMC_stoch_exercise_val,LSMC_determ_cont_val,LSMC_determ_exercise_val,t,tau_stoch,tau_determ,V_stoch,V_determ,obj_stoch,obj_determ,S  = self.generateValidationSet(savedir=savedir)
+        LSMC_stoch_cont_val,LSMC_stoch_exercise_val,LSMC_determ_cont_val,LSMC_determ_exercise_val,t,tau_stoch,tau_determ,V_stoch,V_determ,obj_stoch,obj_determ,S  = self.generateValidationSet(M=M,savedir=savedir,seed=seed)
         
         print(f'Stoch LSMC:Fish pond value {V_stoch} at mean stopping time {np.mean(tau_stoch)}')
         print(f'Determ LSMC:Fish pond value {V_determ} at mean stopping time {np.mean(tau_determ)}')
@@ -209,14 +216,16 @@ class fishFarm():
             print(f'\tDeterm-Determ Deep Decision: Fish pond value {np.mean(V_determ_ddc_determ)} at mean stopping time {np.mean(tau_determ_ddc_determ)}')
             print(f'\tStoch Revenue = {np.mean(V_stoch_ddc_stoch)/np.mean(V_stoch_ddc_determ)}* Determ Revenue')
 
-        print('Pathwise comparsion')
+        if self.verbose>0:
+            print('Pathwise comparsion')
         V_stoch_stoch=0
         for wi in range(tau_stoch.size):
             tau = tau_stoch[wi]
             ti=np.argwhere(t==tau)[0,0]
             V_stoch_stoch+=obj_stoch[ti,wi]
         V_stoch_stoch/=obj_stoch.shape[1]
-        print(f'\tStoch-Stoch pathwise: Fish pond value {V_stoch_stoch} at mean stopping time {np.mean(tau_stoch)}')
+        if self.verbose>0:
+            print(f'\tStoch-Stoch pathwise: Fish pond value {V_stoch_stoch} at mean stopping time {np.mean(tau_stoch)}')
 
         V_stoch_determ=0
         for wi in range(tau_determ.size):
@@ -224,8 +233,18 @@ class fishFarm():
             ti=np.argwhere(t==tau)[0,0]
             V_stoch_determ+=obj_stoch[ti,wi]
         V_stoch_determ/=obj_stoch.shape[1]
+
+        V_pathwise_comp=np.zeros((tau_stoch.size,),dtype=self.dtype)
+        for wi in range(tau_determ.size):
+            taus = tau_stoch[wi]
+            tis=np.argwhere(t==taus)[0,0]
+            taud = tau_determ[wi]
+            tid=np.argwhere(t==taud)[0,0]
+            V_pathwise_comp[wi]=obj_stoch[tis,wi]/obj_stoch[tid,wi]
+
         print(f'\tStoch-Determ pathwise: Fish pond value {V_stoch_determ} at mean stopping time {np.mean(tau_determ)}')
         print(f'\tStoch Revenue = {V_stoch_stoch/V_stoch_determ}* Determ Revenue')
+        return V_stoch_stoch,np.mean(tau_stoch),V_stoch_determ,np.mean(tau_determ),V_stoch_stoch/V_stoch_determ,V_pathwise_comp
 
 
 if __name__=="__main__":

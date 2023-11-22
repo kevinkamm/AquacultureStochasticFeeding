@@ -187,16 +187,22 @@ class fishFarm():
             LSMC_stoch_cont_train,LSMC_stoch_exercise_train,LSMC_determ_cont_train,LSMC_determ_exercise_train = self.generateTrainingSet(savedir=savedir)
         LSMC_stoch_cont_val,LSMC_stoch_exercise_val,LSMC_determ_cont_val,LSMC_determ_exercise_val,t,tau_stoch,tau_determ,V_stoch,V_determ,obj_stoch,obj_determ,S  = self.generateValidationSet(M=M,savedir=savedir,seed=seed)
         
-        print(f'Stoch LSMC:Fish pond value {V_stoch} at mean stopping time {np.mean(tau_stoch)}')
-        print(f'Determ LSMC:Fish pond value {V_determ} at mean stopping time {np.mean(tau_determ)}')
+        if self.verbose>0:
+            print(f'Stoch LSMC:Fish pond value {V_stoch} at mean stopping time {np.mean(tau_stoch)}')
+            print(f'Determ LSMC:Fish pond value {V_determ} at mean stopping time {np.mean(tau_determ)}')
         I = np.argmax(obj_stoch,axis=0)
         V_stoch_ant=np.max(obj_stoch,axis=0)
         tau_stoch_ant=t[I]
-        print(f'Stoch Anticipative: Fish pond value {np.mean(V_stoch_ant)} at mean stopping time {np.mean(tau_stoch_ant)}')
+
+        if self.verbose>0:
+            print(f'Stoch Anticipative: Fish pond value {np.mean(V_stoch_ant)} at mean stopping time {np.mean(tau_stoch_ant)}')
+
         I = np.argmax(obj_determ,axis=0)
         V_determ_ant=np.max(obj_determ,axis=0)
         tau_determ_ant=t[I]
-        print(f'Determ Anticipative: Fish pond value {np.mean(V_determ_ant)} at mean stopping time {np.mean(tau_determ_ant)}')
+
+        if self.verbose>0:
+            print(f'Determ Anticipative: Fish pond value {np.mean(V_determ_ant)} at mean stopping time {np.mean(tau_determ_ant)}')
 
         if savedir == '':
             traindir=''
@@ -241,9 +247,11 @@ class fishFarm():
             taud = tau_determ[wi]
             tid=np.argwhere(t==taud)[0,0]
             V_pathwise_comp[wi]=obj_stoch[tis,wi]/obj_stoch[tid,wi]
-
-        print(f'\tStoch-Determ pathwise: Fish pond value {V_stoch_determ} at mean stopping time {np.mean(tau_determ)}')
-        print(f'\tStoch Revenue = {V_stoch_stoch/V_stoch_determ}* Determ Revenue')
+        if self.verbose>0:
+            print(f'\tStoch-Determ pathwise: Fish pond value {V_stoch_determ} at mean stopping time {np.mean(tau_determ)}')
+            
+        if self.verbose>-1:
+            print(f'\tStoch Revenue = {V_stoch_stoch/V_stoch_determ}* Determ Revenue')
         return V_stoch_stoch,np.mean(tau_stoch),V_stoch_determ,np.mean(tau_determ),V_stoch_stoch/V_stoch_determ,V_pathwise_comp
 
 

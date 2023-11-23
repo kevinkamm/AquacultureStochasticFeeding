@@ -15,7 +15,7 @@ tf.config.set_visible_devices([], 'GPU')
 
 M=10000 # LSMC simulations (batch size)
 m=10000 # trials 
-threads=1
+threads=32
 'Salmon'
 salmonParams=[[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95],[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95],[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95]]
 soyParams=[[0.15, 0.5, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500],[0.15, 1, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500],[0.15, 2, 0.4, 1.2, 0.06, 0.14, 0.44, 0.0, 1500]]
@@ -36,7 +36,7 @@ for salmonParam in salmonParams:
         print(f'Feeding costs {feedingCosts} and Harvesting costs {harvestingCosts}')
         soyParam[-1]=feedingCosts # to save the right dataset, since initial price is not relevant for soy model
 
-        farm1=fishFarm(salmonParam2,soyParam,fc=soyParam[-1],hc=harvestingCosts,trainBoundary=False,rho=rho,verbose=1)
+        farm1=fishFarm(salmonParam2,soyParam,fc=soyParam[-1],hc=harvestingCosts,trainBoundary=False,rho=rho,verbose=-1)
 
         V_ss=[]
         tau_s_m=[]

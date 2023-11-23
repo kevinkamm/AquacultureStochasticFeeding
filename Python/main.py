@@ -15,9 +15,9 @@ tf.config.set_visible_devices([], 'GPU')
 
 'Salmon'
 # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
-salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95] # down,down  #95% CI: low: 1.0045910369886444 (1.0040124170878617, 1.005169656889427), med: (1.0296478162261926, 1.0307114229093468), high:
-# salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up   #95% CI: low: 1.0027202793157857 (1.0020225121963489, 1.0034180464352225), med: 1.01940665957519 (1.0187204521555322, 1.0200928669948666), high: 1.092655746 (1.0918837394580252, 1.093427752835499)
-# salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95] # up,up     #95% CI: low: , med: , high:
+salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.01, 0.9, 0.57, 95] # down,down  
+# salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.2, 0.9, 0.57, 95] # down,up  
+# salmonParam=[0.12, 0.23, 0.75, 2.6, 0.02, 0.6, 0.9, 0.57, 95] # up,up     
 
 'Soy'
 # mu, sigma1, sigma2, kappa, alpha, lambda, rho, delta0, P0
@@ -60,14 +60,6 @@ V_sd=[]
 tau_d_m=[]
 ri=[]
 V_path=[]
-# for i in range(0,1000):
-#     V_stoch_stoch,tau_stoch,V_stoch_determ,tau_determ,RI,V_pathwise_comp = farm1.compareStoppingTimes(M=100000,savedir='Python',seed=2+i)
-#     V_ss.append(V_stoch_stoch)
-#     tau_s_m.append(tau_stoch)
-#     V_sd.append(V_stoch_determ)
-#     tau_d_m.append(tau_determ)
-#     ri.append(RI)
-#     V_path.append(V_pathwise_comp)
 
 #takes ca. 20min
 tic = time.time()

@@ -91,7 +91,7 @@ fig=newFigure();
 tl=tiledlayout(3,1);
 %% Futures for one date
 ax=nexttile; hold on;
-plot(ttm,Fcortazar(dInd,:),'m--')
+plot(ttm,Fcortazar(dInd,:),'g--')
 plot(ttm,Fkalman(dInd,:),'r--')
 % plot(ttm,Fhybrid(dInd,:),'y--')
 plot(ttm,Fmarket(dInd,:),'bx')
@@ -102,23 +102,25 @@ legend(ax,'Cortazar','Kalman','Market','Location','southoutside','Orientation','
 
 %% Spots for all dates
 ax=nexttile; hold on;
-plot(aC(:,1),'mo')
+plot(aC(:,1),'go')
 plot(aK(:,1),'rx')
 % plot(aH(:,1),'y.')
 title('Spot for all dates')
 xlabel('Dates')
 % legend(ax,'Cortazar','Kalman','Hybrid','Location','southoutside','Orientation','horizontal')
 legend(ax,'Cortazar','Kalman','Location','southoutside','Orientation','horizontal')
+num2Date(ax,days);
 
 %% Convenience yield for all dates
 ax=nexttile; hold on;
-plot(aC(:,2),'mo')
+plot(aC(:,2),'go')
 plot(aK(:,2),'rx')
 % plot(aH(:,2),'y.')
 title('Convenience yield for all dates')
 xlabel('Dates')
 % legend(ax,'Cortazar','Kalman','Hybrid','Location','southoutside','Orientation','horizontal')
 legend(ax,'Cortazar','Kalman','Location','southoutside','Orientation','horizontal')
+num2Date(ax,days);
 
 exportgraphics(fig,'Figures/KalmanVsCortazar.pdf')
 %%

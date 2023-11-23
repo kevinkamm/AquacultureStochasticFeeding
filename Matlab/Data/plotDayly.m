@@ -1,6 +1,6 @@
 clear all; close all;
-% comdty='Salmon';
-comdty='Soy';
+comdty='Salmon';
+% comdty='Soy';
 comdtyFull=load(['Daily\',comdty]);
 
 dates=comdtyFull.udates;
@@ -16,6 +16,8 @@ xlabel('date')
 ylabel('time-to-maturity')
 zlabel('price')
 view(3);
+ax=gca;
+num2Date(ax,dates)
 exportgraphics(fig,['Figures/',comdty,'MarketSurface.pdf'])
 % view([0,-1,0])
 
